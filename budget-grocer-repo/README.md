@@ -37,3 +37,5 @@ Estimated prices, shop data can be incomplete, Spain only.
 
 ## AI acknowledgement
 *(Write this in your own words, following the course guidelines. Say which parts of the work AI helped with, for example planning the layout, writing and debugging code, and drafting copy, and which parts you decided and made yourself.)*
+
+
