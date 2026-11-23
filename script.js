@@ -339,6 +339,7 @@
     const pct = worst.total ? Math.round((saving / worst.total) * 100) : 0;
     const metaOf = (s) => [s.dist != null ? fmtKm(s.dist) : '', s.addr].filter(Boolean).join(' · ');
     const next = ranked.slice(1, 4);
+    const generic = stores.every((x) => x.lat == null);
 
     let html = '<div class="out">';
     if (note) html += `<p class="note">${note}</p>`;
@@ -347,7 +348,7 @@
     html += `<section class="win" aria-labelledby="w-title">
       <span class="card-bg" aria-hidden="true"></span>
       <p class="win-top"><span>Basket ${priced} / ${rows.length}</span><span class="pill">Cheapest</span></p>
-      <p class="win-eyebrow">Near ${esc(label)}</p>
+      <p class="win-eyebrow">${generic ? 'Typical prices · main chains' : 'Near ' + esc(label)}</p>
       <h3 id="w-title">${esc(top.name)}</h3>
       <p class="win-total">${fmt(top.total)}</p>
       ${next.length ? `<ul class="glass">${next.map((s) => `<li><span>${esc(s.name)}</span><b>${fmt(s.total)}</b><em>+${Math.round((s.total / top.total - 1) * 100)}%</em></li>`).join('')}</ul>` : ''}
@@ -550,6 +551,24 @@
     drawChips(typed);
     updateCollage(rows);
     store.set('bg-list', list.value);
+    checkStale(rows);
+  }
+
+  // A comparison is only valid for the basket it was made from. If the basket changes, say so.
+  let lastSig = null;
+  const basketSig = (rows) => rows.map((r) => (r.item ? r.item.id : r.raw) + ':' + r.qty).sort().join('|');
+  function checkStale(rows) {
+    const out = document.querySelector('#results .out');
+    if (!out || lastSig === null) return;
+    const stale = basketSig(rows) !== lastSig;
+    out.classList.toggle('is-stale', stale);
+    let msg = out.querySelector('.stale');
+    if (stale && !msg) {
+      msg = document.createElement('p');
+      msg.className = 'note stale'; msg.setAttribute('role', 'status');
+      msg.innerHTML = '<strong>Your basket has changed.</strong> These totals are for your earlier basket. Press “Find the cheapest shop” to update them.';
+      out.prepend(msg);
+    } else if (!stale && msg) msg.remove();
   }
 
   list.addEventListener('input', syncList);
@@ -723,12 +742,13 @@
 
       if (!stores.length) {
         stores = FALLBACK.map((id) => ({ chain: chainById[id], name: chainById[id].name, dist: null, addr: '', lat: null, lon: null }));
-        note = failed ? 'We couldn’t reach the map services from here, so these are typical prices for the main chains, not shops near you. On the live site we look up the real shops around you.' : 'We couldn’t find those chains nearby, so these are typical prices for the main chains.';
+        note = failed ? `We couldn’t look up the shops near ${esc(label || 'you')} just now (the map service didn’t answer), so this is a general comparison of typical prices at the main chains, not the shops around you. Try again in a moment to see real nearby shops.` : `We couldn’t find those chains near ${esc(label || 'you')}, so this is a general comparison of typical prices at the main chains.`;
       }
       results.innerHTML = loading(2);
       await new Promise((r) => setTimeout(r, reduceMotion ? 0 : 400));
 
       results.innerHTML = render({ rows, stores, label, note });
+      lastSig = basketSig(rows);
       store.set('bg-place', place.value);
       results.focus({ preventScroll: true });
       results.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });

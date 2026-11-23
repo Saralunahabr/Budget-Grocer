@@ -645,3 +645,15 @@ body { background: #F7EDB9; }
 #checkout .step-tag { background: #A5533A; color: #FAF6EA; border-color: #A5533A; }
 .foot { background: #A5533A; }
 .foot-thanks { color: #F7EDB9; }
+
+
+/* results made for an earlier basket */
+.out.is-stale > .win, .out.is-stale > .receipt { opacity: .45; filter: grayscale(.4); transition: opacity .2s; }
+.note.stale { border-left-color: #A5533A; }
+@media (prefers-reduced-motion: reduce) { .out.is-stale > .win, .out.is-stale > .receipt { transition: none; } }
+
+/* clearer keyboard focus on the list box, and bigger tap targets on phones */
+.pad:focus-within { outline: 3px solid var(--ink); outline-offset: 3px; }
+@media (max-width: 720px) {
+  .rail a { min-height: 44px; display: inline-flex; align-items: center; }
+}
