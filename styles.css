@@ -657,3 +657,13 @@ body { background: #F7EDB9; }
 @media (max-width: 720px) {
   .rail a { min-height: 44px; display: inline-flex; align-items: center; }
 }
+
+/* phones: show all four steps on a second row instead of hiding them in a scroll */
+@media (max-width: 720px) {
+  html { scroll-padding-top: 6.5rem; }
+  .rail { flex-wrap: wrap; justify-content: space-between; row-gap: .15rem; padding-block: .45rem; }
+  .rail .brand { display: block !important; order: 1; }
+  .rail .basket { order: 2; }
+  .rail ol { order: 3; flex: 1 1 100%; margin-inline: 0; justify-content: space-between; overflow: visible; }
+  .rail ol a { padding: .3rem .5rem; font-size: .82rem; min-height: 40px; display: inline-flex; align-items: center; }
+}
